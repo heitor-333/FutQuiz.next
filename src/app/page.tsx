@@ -6,8 +6,10 @@ import { quizData } from "@/types/quiz";
 const Page = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
 
   const question = quizData[currentQuestion];
+  const isEnd = currentQuestion >= quizData.length;
 
   const handleAnswerClick = (answer: string) => {
     if (selectedAnswer === null) {
@@ -16,6 +18,10 @@ const Page = () => {
   };
 
   const handleNext = () => {
+    const selected = question.options.find(opt => opt.text === selectedAnswer);
+    if (selected?.isCorrect) {
+      setCorrectAnswers(prev => prev + 1);
+    }
     setSelectedAnswer(null);
     setCurrentQuestion((prev) => prev + 1);
   };
@@ -23,15 +29,15 @@ const Page = () => {
   const handleReset = () => {
     setCurrentQuestion(0);
     setSelectedAnswer(null);
+    setCorrectAnswers(0);
   };
-
-  const isEnd = currentQuestion >= quizData.length;
 
   if (isEnd) {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-gray-100">
         <div className="bg-white shadow-xl rounded-xl p-10 max-w-md w-full text-center space-y-6">
           <h1 className="text-3xl font-bold text-gray-700">FIM</h1>
+          <p className="text-gray-600">Você acertou {correctAnswers} de {quizData.length} perguntas.</p>
           <button
             onClick={handleReset}
             className="mt-4 px-5 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
@@ -89,13 +95,13 @@ const Page = () => {
           })}
         </div>
 
-        {/* Botão Confirmar */}
+        {/* Botão Confirmar/Próximo */}
         {selectedAnswer && (
           <button
             onClick={handleNext}
             className="w-full mt-4 p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all"
           >
-            Confirmar
+            {currentQuestion === quizData.length - 1 ? "Confirmar" : "Próximo"}
           </button>
         )}
 
